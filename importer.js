@@ -37,7 +37,7 @@
         }
 
         /**
-         * 
+         * load the script.
          * 
          * @param {Import} _import 
          * @param {Import} [parent] 
@@ -113,7 +113,7 @@
         }
 
         /**
-         * Process exports
+         * Process imports
          * 
          * @param {Import} _import
          * @param {string} script
@@ -155,7 +155,7 @@
         }
 
         /**
-         * Gets the exports for a given file
+         * Gets the imports for a given file
          * 
          * @param {string} scriptPath 
          * @param {string} script 
