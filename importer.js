@@ -47,8 +47,7 @@
          */
         getScript(_import, parent) {
             if (this.downloaded[_import.path]) {
-                // TODO: fix this, it isn't quite right.
-                return Promise.resolve(this.downloaded[_import.path]);
+                return Promise.resolve();
             }
             return fetch(_import.path)
                 .then((response) => {
@@ -251,8 +250,15 @@
          * @memberof Import
          */
         buildPath(childPath, parentPath) {
+            let cds = childPath.match(/\.\.\//g);
+            let cdLength = (cds != null)? cds.length : 0;
+            childPath = childPath.replace(/\.\.\//g, "");
             parentPath = parentPath || "/";
-            let path = parentPath.split("/").reduce(Import.buildPath, "");
+            let parentPathArray = parentPath.split("/");
+            if (cdLength) {
+                parentPathArray = parentPathArray.slice(0, -(cdLength));
+            }
+            let path = parentPathArray.reduce(Import.composePathParts, "");
             return [path, childPath.replace("./", "")].join("");
         }
 
@@ -301,7 +307,11 @@
          * @memberof Import
          */
         getIifeWrappedScript() {
-            return `(function() { \n "use strict";\n ${this.script}\n\n})();`;
+            if (this.variables.length && this.script.indexOf("ei.export") === -1) {
+                let ex = this.variables[0];
+                this.script = `${this.script} \nei.export('${this.path}', '${Importer.DEFAULT_NAME}', ${ex.name})`
+            }
+            return `(function(){ "use strict";\n${this.script}\n})();`;
         }
 
         /**
@@ -332,7 +342,7 @@
     }
 
     /**
-     * Builds the path from 
+     * Builds path partial
      * 
      * @param {string} combined 
      * @param {string} next 
@@ -340,7 +350,7 @@
      * @param {Array<string>} arr 
      * @returns 
      */
-    Import.buildPath = function buildPath(combined, next, index, arr) {
+    Import.composePathParts = function composePathParts(combined, next, index, arr) {
         if (arr.length === index + 1) {
             return (combined !== "")? combined + "/" : combined;
         }
