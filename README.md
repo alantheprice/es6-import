@@ -1,4 +1,4 @@
-# A client side importer that may eventually provide much of the functionality of es6 imports.
+# A client side importer that provides most of the functionality of es6 imports.
 
 Welcome to es6-import a small library for using es6 imports without the need for a server-side transpiler.
 
