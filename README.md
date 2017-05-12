@@ -2,9 +2,9 @@
 
 Welcome to es6-import a small library for using es6 imports without the need for a server-side transpiler.
 
-The core goal here is to allow fast iterative development using all es6(next) syntax that is supported by the major browsers.  Browsers have been constantly improving their ECMA-script support.  We now can write es-next javascript barring a few features without many pain points. But, one of the main missing pieces has been imports and exports.  To solve this and other missing features, most use server-side transpilers.  And there are great advanatages to server side packaging for production code (treeshaking etc), for working with typescript, or jsx and for allowing imports and exports. 
+The core goal here is to allow fast iterative development using all es6(next) syntax that is supported by the major browsers.  Browsers have been constantly improving their ECMA-script support to the point that we now can write es-next javascript with few pain points. But, one of the main missing pieces has been imports and exports.  To solve this and other missing features, most use server-side transpilers.  There are great advanatages to server side packaging for production code (treeshaking etc), for working with typescript, or jsx and for allowing imports and exports. 
 
-But what if I just want to hack out a simple proof of concept with the extra overhead of packaging? But why not just code in es6 with imports without server-side transpilation?  Give it a try and feel how rewarding it it is to just write code without worrying about transpilation.
+But what if I just want to hack out a simple proof of concept without the extra overhead of packaging? But why not just code in es6 with imports without server-side transpilation?  Give it a try and feel how rewarding it it is to just write code without worrying about transpilation.
 
 ### Usage: 
 
