@@ -15,6 +15,6 @@ But what if I just want to hack out a simple proof of concept without the extra 
 
 
 #### Q&A:
-1. Should I use this in production? **No** -- there are many optimizations that happen with server side transpilers that are optimized for serving production code, and the goal of this project is not to compete with them, but rather just allow quick development against modern browsers with minimial overhead.
+1. Should I use this in production? **No** -- there are many optimizations that happen with server side transpilers that are optimized for serving production code. The goal of this project is not to compete with them, but rather to allow quick development against modern browsers with minimial overhead.
 2. Does this support typescript?  **No** -- But if you really want to give typescript a try, just write javascript in the most recent version of [vscode](https://code.visualstudio.com/) and enable [typescript evaluation of javascript](https://code.visualstudio.com/updates/v1_12#_typescript-23)
 3. Does this support jsx? **No** -- some miracles are out of scope (the same pattern used here for imports could potentially be used for other types of transpilation, but at some point, your probably should just use a traditional transpiler.  Although, if you want to submit a pull request, go for it!).
