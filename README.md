@@ -1,6 +1,6 @@
 # A client side importer that provides most of the functionality of es6 imports.
 
-Welcome to es6-import a small library for using es6 imports without the need for a server-side transpiler.
+Welcome to es6-import, a small library for using es6 imports without the need for a server-side transpiler.
 
 The core goal here is to allow fast iterative development using all es6(next) syntax that is supported by the major browsers.  Browsers have been constantly improving their ECMA-script support to the point that we now can write es-next javascript with few pain points. But, one of the main missing pieces has been imports and exports.  To solve this and other missing features, most projects use server-side transpilers.  There are great advantages to server side packaging for production code (treeshaking etc), for working with typescript, or jsx and for allowing imports and exports. 
 
