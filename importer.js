@@ -1,11 +1,13 @@
 (function () {
     "use strict";
 
+    const EXPORT_REGEX = /(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9]*/g;
+    const IMPORT_REGEX = /(?:^|\n)\s*import ([{}a-zA-Z1-9,\s]*) from ['|"].*['|"];/g;
+
     class Importer {
 
         constructor() {
             this.downloaded = {};
-            this.importReg = /import ([{}a-zA-Z1-9,\s]*) from ['|"].*['|"];*/g
             let scripts = document.getElementsByTagName("script");
             let importScript = Array.from(scripts).find((elem) => {
                 return elem.getAttribute("import") != null;
@@ -20,8 +22,8 @@
         /**
          * Begin file imports
          * 
-         * @param {string} scriptPath 
-         * @returns {Promise<any>}
+         * @param {string} scriptPath
+         * @returns void
          * 
          * @memberof Importer
          */
@@ -37,7 +39,7 @@
         }
 
         /**
-         * load the script.
+         * Recursively loads all scripts.
          * 
          * @param {Import} _import 
          * @param {Import} [parent] 
@@ -102,12 +104,13 @@
          * @memberof Importer
          */
         processExports(_import, script) {
-            if (script.indexOf("export ") > -1) {
-                let exports = this.getExports(_import.path, script);
-                script = script.replace(/export default /, `let ${Importer.DEFAULT_NAME} = `);
-                script = script.replace(/export /g, "");
-                script = [script, exports.join("\n")].join("\n");
+            let exports = this.getExports(_import.path, script);
+            if (!exports) {
+                return script;
             }
+            script = script.replace(/export default /, `const ${Importer.DEFAULT_NAME} = `);
+            script = script.replace(/export /g, "");
+            script = [script, exports.join("\n")].join("\n");
             return script;
         }
 
@@ -121,15 +124,16 @@
          * @memberof Importer
          */
         processImports(_import, script) {
-            if (script.indexOf("import ") > -1) {
-                let imports = this.getImports(_import.path, script);
-                let importsText = imports.map(imp => {
-                    _import.addChild(imp);
-                    return imp.getImportText();
-                }).join("\n");
-                script = script.replace(this.importReg, "");
-                script = `${importsText} \n ${script}`;
+            let imports = this.getImports(_import.path, script);
+            if (!imports) {
+                return script;
             }
+            let importsText = imports.map(imp => {
+                _import.addChild(imp);
+                return imp.getImportText();
+            }).join("\n");
+            script = script.replace(IMPORT_REGEX, "");
+            script = `${importsText} \n ${script}`;
             return script;
         }
 
@@ -143,14 +147,22 @@
          * @memberof Importer
          */
         getExports(scriptPath, script) {
-            let exports = script.match(new RegExp("export [a-zA-Z]* [a-zA-Z1-9]*", "g"));
+            let exports = script.match(new RegExp("(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9]*", "g"));
+            if (!exports) {
+                return null;
+            }
+
             return exports.map(exp => {
-                let [_e, varType, name] = exp.split(" ")
+                let [_e, varType, name] = exp.trim().split(" ")
                 if (varType === "default") {
-                    return `ei.export('${scriptPath}', '${Importer.DEFAULT_NAME}', ${Importer.DEFAULT_NAME});`;
+                    return this.getExportScript(scriptPath, Importer.DEFAULT_NAME, Importer.DEFAULT_NAME);
                 }
-                return `ei.export('${scriptPath}', '${name}', ${name});`;
+                return this.getExportScript(scriptPath, name, name);
             })
+        }
+
+        getExportScript(scriptPath, name, objName) {
+            return `ei.export('${scriptPath}', '${name}', ${objName});`;
         }
 
         /**
@@ -163,8 +175,11 @@
          * @memberof Importer
          */
         getImports(scriptPath, script) {
-            let imports = script.match(this.importReg);
             // TODO: here add 'imports as' syntax.
+            let imports = script.match(IMPORT_REGEX);
+            if (!imports) {
+                return null;
+            }
             return imports.map(imp => {
                 return new Import(imp, scriptPath);
             })
@@ -250,6 +265,11 @@
          * @memberof Import
          */
         buildPath(childPath, parentPath) {
+            // in this case, we have an external url, don't need to build a path.
+            if (childPath.includes("http")) {
+                return childPath;
+            }
+
             let cds = childPath.match(/\.\.\//g);
             let cdLength = (cds != null)? cds.length : 0;
             childPath = childPath.replace(/\.\.\//g, "");
@@ -270,7 +290,7 @@
          */
         getImportText() {
             return this.variables.map((variable) => {
-                return `let ${variable.name} = ei.import('${this.path}', '${variable.valueName}');`
+                return `const ${variable.name} = ei.import('${this.path}', '${variable.valueName}');`
             }).join("\n");
         }
 
@@ -309,9 +329,18 @@
         getIifeWrappedScript() {
             if (this.variables.length && this.script.indexOf("ei.export") === -1) {
                 let ex = this.variables[0];
-                this.script = `${this.script} \nei.export('${this.path}', '${Importer.DEFAULT_NAME}', ${ex.name})`
+                this.script = `${this.script} \nconsole.log('global', global.${ex.name});ei.export('${this.path}', '${Importer.DEFAULT_NAME}', global.${ex.name})`
             }
-            return `(function(){ "use strict";\n${this.script}\n})();`;
+            return this.getIife(this.script);
+        }
+
+        getIife(content) {
+            let global = "const global = window;";
+            if (content.indexOf("(function (global, factory) {") > -1) {
+                global = "const global = {};";
+                content = content.replace("(function (global, factory) {", "(function (_global, factory) {")
+            }
+            return `(function(){"use strict"\n${global}\n${content}\n})();`;
         }
 
         /**
@@ -322,7 +351,7 @@
          */
         addScriptToDom() {
             if (document.getElementById(this.path) != null) {
-                return Promise.resolve();
+                return Promise.resolve(true);
             } 
             let scriptTag = document.createElement("script");
             scriptTag.setAttribute("id", this.path);
