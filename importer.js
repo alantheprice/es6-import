@@ -51,6 +51,7 @@
             if (this.downloaded[_import.path]) {
                 return Promise.resolve();
             }
+            let path = (_import.path.indexOf('.') > -1) ? _import.path : _import.path + '.js'
             return fetch(_import.path)
                 .then((response) => {
                     if (!response.ok) {
