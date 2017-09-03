@@ -52,7 +52,7 @@
                 return Promise.resolve();
             }
             let path = (_import.path.indexOf('.') > -1) ? _import.path : _import.path + '.js'
-            return fetch(_import.path)
+            return fetch(path)
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error(response.statusText);
