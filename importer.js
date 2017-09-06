@@ -1,7 +1,7 @@
 (function () {
     "use strict";
 
-    const EXPORT_REGEX = /(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9]*/g;
+    const EXPORT_REGEX = /(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9_]*/g;
     const IMPORT_REGEX = /(?:^|\n)\s*import ([{}a-zA-Z1-9,_\s]*) from ['|"].*['|"]/g;
 
     class Importer {
@@ -149,7 +149,7 @@
          * @memberof Importer
          */
         getExports(scriptPath, script) {
-            let exports = script.match(new RegExp("(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9]*", "g"));
+            let exports = script.match(new RegExp("(?:^|\n)\s*export [a-zA-Z_]* [a-zA-Z1-9_]*", "g"));
             if (!exports) {
                 return null;
             }
@@ -274,7 +274,7 @@
                 let [_import, defaultName] = fullImportText.split(" ");
                 return [{name: defaultName, valueName: Importer.DEFAULT_NAME}];
             }
-            return fullImportText.match(/{([a-zA-Z1-9,\s]*)}/g)[0]
+            return fullImportText.match(/{([a-zA-Z1-9,_\s]*)}/g)[0]
                 .replace(/[{|}]/g, "")
                 .split(",")
                 .map(val => val.trim())
