@@ -2,7 +2,7 @@
     "use strict";
 
     const EXPORT_REGEX = /(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9]*/g;
-    const IMPORT_REGEX = /(?:^|\n)\s*import ([{}a-zA-Z1-9,\s]*) from ['|"].*['|"]/g;
+    const IMPORT_REGEX = /(?:^|\n)\s*import ([{}a-zA-Z1-9,_\s]*) from ['|"].*['|"]/g;
 
     class Importer {
 

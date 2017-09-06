@@ -23,5 +23,6 @@ Other uses could be to create a fully in-browser editor with some level of trans
 
 #### Changelog:
 
+* 1.3.3: Added support for underscores in import variables.
 * 1.3.0: Added support for `.vue` files, but extensions on all import file types are still needed.
 * 1.2.1: Updated the importer to support imports without a semi-colon at the end.
