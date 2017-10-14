@@ -3,6 +3,7 @@
 
     const EXPORT_REGEX = /(?:^|\n)\s*export [a-zA-Z]* [a-zA-Z1-9_]*/g;
     const IMPORT_REGEX = /(?:^|\n)\s*import ([{}a-zA-Z1-9,_\s]*) from ['|"].*['|"]/g;
+    const SUPPORTED_MODULES = ['vue']
 
     class Importer {
 
@@ -51,7 +52,12 @@
             if (this.downloaded[_import.path]) {
                 return Promise.resolve();
             }
-            let path = (_import.path.indexOf('.') > -1) ? _import.path : _import.path + '.js'
+            let path = _import.path
+            if (SUPPORTED_MODULES.indexOf(_import.path)) {
+                path = `https://unpkg.com/${_import.path}`
+            } else if (_import.path.indexOf('.') > 1) {
+                path = _import.path + '.js'
+            }
             return fetch(path)
                 .then((response) => {
                     if (!response.ok) {
@@ -295,7 +301,7 @@
          */
         buildPath(childPath, parentPath) {
             // in this case, we have an external url, don't need to build a path.
-            if (childPath.includes("http")) {
+            if (childPath.includes("http") || SUPPORTED_MODULES.indexOf(childPath)) {
                 return childPath;
             }
 
