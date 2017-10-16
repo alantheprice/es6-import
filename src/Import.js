@@ -173,9 +173,15 @@ export class Import {
      * Adds the input script to the DOM.
      * 
      * @param {string} scriptText 
-     * @returns {Promise<boolean>}
+     * @returns {Promise<any>}
      */
     addScriptToDom() {
+        if (state.compileSingle) {
+            addedPaths[this.path] = true
+            state.finalScript+= this.getIifeWrappedScript()
+            return Promise.resolve()
+        }
+
         if (document.getElementById(this.path) != null) {
             return Promise.resolve(true);
         }
@@ -189,20 +195,24 @@ export class Import {
         document.head.appendChild(scriptTag);
         return new Promise(resolve => {
             scriptTag.onload = () => {
-                addedPaths[this.path] = true
-                if (window.ei.imports[this.path]) {
-                    resolve();                    
-                } else {
-                    setTimeout(() => {
-                        resolve();
-                    }, 50)
-                }
-                if (state.debug) {
-                    console.log("loaded", scriptTag.src);
-                }
+                this.resolveOnLoad(resolve, scriptTag)
             }
             scriptTag.src = url;
         })
+    }
+
+    resolveOnLoad(resolve, scriptTag) {
+        addedPaths[this.path] = true
+        if (window.ei.imports[this.path]) {
+            resolve();                    
+        } else {
+            setTimeout(() => {
+                this.resolveOnLoad(resolve, scriptTag)
+            }, 10)
+        }
+        if (state.debug) {
+            console.log("loaded", scriptTag.src);
+        }
     }
 
 }

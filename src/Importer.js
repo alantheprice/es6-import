@@ -41,11 +41,21 @@ export class Importer {
         let start = performance.now()
         this.getScript(imp)
             .then(() => {
+                return this.addScript()
+            })
+            .then(() => {
                 utils.log(imp.getDependencyMap())
                 let end = performance.now()
                 let diff = end - start
                 console.log(`It took ${diff} milliseconds to load all scripts`)
             })
+    }
+
+    addScript() {
+        if (!state.compileSingle) {
+            return Promise.resolve()
+        }
+        return utils.attachSrc(state.finalScript, document.head)
     }
 
     getStartingPath(){

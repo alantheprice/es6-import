@@ -25,6 +25,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 
 #### Changelog:
 
+* 1.4.[3-6]: Default to compiling all scripts into a single file.
 * 1.4.[0-2]: Moved to seperated files compiled with webpack and fixed bug with complex dependency trees not being loaded in the correct order.
 * 1.3.[3-4]: Added support for underscores in import variables.
 * 1.3.0: Added support for `.vue` files, but extensions on all import file types are still needed.
