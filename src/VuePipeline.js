@@ -1,4 +1,4 @@
-class VuePipeline {
+export class VuePipeline {
     constructor(filePath, fullImportText) {
         this.filePath = filePath
         this.fullImportText = fullImportText

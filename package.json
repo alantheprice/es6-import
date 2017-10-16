@@ -1,8 +1,8 @@
 {
   "name": "es6-import",
-  "version": "1.3.20",
+  "version": "1.4.0",
   "description": "Client side es6 import, export support.",
-  "main": "importer.js",
+  "main": "dist/importer.js",
   "directories": {
     "example": "example"
   },
@@ -25,5 +25,11 @@
   "bugs": {
     "url": "https://github.com/alantheprice/es6-import/issues"
   },
-  "homepage": "https://github.com/alantheprice/es6-import#readme"
+  "homepage": "https://github.com/alantheprice/es6-import#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "webpack": "^3.7.1"
+  }
 }
