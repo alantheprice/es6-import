@@ -155,7 +155,7 @@ export class Import {
     getIifeWrappedScript() {
         if (this.variables.length && this.script.indexOf("ei.export") === -1) {
             let ex = this.variables[0];
-            this.script = `${this.script} \nconsole.log('global', global.${ex.name});ei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
+            this.script = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
         }
         return this.getIife(this.script);
     }
@@ -190,7 +190,13 @@ export class Import {
         return new Promise(resolve => {
             scriptTag.onload = () => {
                 addedPaths[this.path] = true
-                resolve();
+                if (window.ei.imports[this.path]) {
+                    resolve();                    
+                } else {
+                    setTimeout(() => {
+                        resolve();
+                    }, 50)
+                }
                 if (state.debug) {
                     console.log("loaded", scriptTag.src);
                 }

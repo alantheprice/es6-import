@@ -37,7 +37,7 @@ export class Importer {
             state.domain = scriptPath.split('/').slice(0, 3).join('/')
             scriptPath = './' + scriptPath.split('/').slice(3).join('/')
         }
-        let imp = new Import(`import {} from '${scriptPath}'`, './')
+        let imp = new Import(`import {} from '${scriptPath}'`, this.getStartingPath())
         let start = performance.now()
         this.getScript(imp)
             .then(() => {
@@ -46,6 +46,20 @@ export class Importer {
                 let diff = end - start
                 console.log(`It took ${diff} milliseconds to load all scripts`)
             })
+    }
+
+    getStartingPath(){
+        // there is already a domain specified, we don't need to find entrance base path.
+        if (state.domain) {
+            return './'
+        }
+        let context = window.location.href.replace(window.location.host, '')
+        if (context.split('/').length > 2) {
+            let startingPath = context.split('/').slice(0, -1).join('/')
+            console.log('startingPath', startingPath)
+            return startingPath
+        }
+        return './'
     }
 
     /**
@@ -151,7 +165,7 @@ export class Importer {
      * @memberof Importer
      */
     getExports(scriptPath, script) {
-        let exports = script.match(new RegExp('(?:^|\n)\s*export [a-zA-Z_]* [a-zA-Z1-9_]*', 'g'))
+        let exports = script.match(new RegExp(consts.EXPORT_REGEX_PATTERN, 'g'))
         if (!exports) {
             return null
         }

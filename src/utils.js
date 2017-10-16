@@ -75,6 +75,10 @@ function addGlobalFunctions() {
         }
 
         function importer(path, key) {
+            if (!imports[path]) {
+                console.error('unable to find module: ' + path)
+                console.log('Available Modules: ', Object.keys(imports))
+            }
             if (key) {
                 return imports[path][key]
             }

@@ -1,9 +1,9 @@
 {
   "name": "es6-import",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Client side es6 import, export support.",
   "main": "dist/importer.js",
-  "file": [
+  "files": [
     "src",
     "example",
     "dist",
