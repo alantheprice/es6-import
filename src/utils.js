@@ -1,7 +1,10 @@
+import state from './sharedState.js'
 
 export default {
     composePathParts: composePathParts,
-    attachSrc: attachSrc
+    attachSrc: attachSrc,
+    addGlobalFunctions: addGlobalFunctions,
+    log: log
 }
 
 /**
@@ -46,4 +49,36 @@ function attachSrc(script, parent) {
         }
         scriptTag.src = url
     })
+}
+
+function log(msg) {
+    if (!state.debug) {
+        return
+    }
+    msg = (typeof msg === 'object') ? JSON.stringify(msg, null, 2) : msg
+    console.log(msg)
+}
+
+function addGlobalFunctions() {
+    window.ei = (function () {
+        let imports = {}
+
+        return {
+            import: importer,
+            export: exporter,
+            imports: imports
+        }
+
+        function exporter(path, key, obj) {
+            imports[path] = imports[path] || {}
+            imports[path][key] = obj
+        }
+
+        function importer(path, key) {
+            if (key) {
+                return imports[path][key]
+            }
+            return imports[path]
+        }
+    })()
 }

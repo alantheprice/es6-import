@@ -3,24 +3,24 @@ import { VuePipeline } from './VuePipeline.js'
 import loader from './loader.js'
 import consts from './consts.js'
 import utils from './utils.js'
+import state from './sharedState.js'
 
 export class Importer {
 
     constructor() {
-        this.supportedModules = consts.DEFAULT_SUPPORTED_MODULES
         let importScript = Array.from(document.getElementsByTagName('script')).find((elem) => {
             return elem.getAttribute('import') != null
         })
         if (importScript == null) {
             throw new Error('No import script found')
         }
-        this.domain = null
-        this.addGlobalFunctions()
+        state.domain = null
+        utils.addGlobalFunctions()
         let customNpmModules = importScript.getAttribute('npm-modules')
         if (customNpmModules) {
-            this.supportedModules = consts.DEFAULT_SUPPORTED_MODULES.concat(JSON.parse(customNpmModules))
+            state.supportedModules = state.supportedModules.concat(JSON.parse(customNpmModules))
         }
-        this.debug = importScript.getAttribute('debug') ? true : false
+        state.debug = importScript.getAttribute('debug') ? true : false
         this.beginImport(importScript.getAttribute('import'))
     }
 
@@ -34,16 +34,14 @@ export class Importer {
      */
     beginImport(scriptPath) {
         if (scriptPath.indexOf('http') > -1) {
-            this.domain = scriptPath.split('/').slice(0, 3).join('/')
+            state.domain = scriptPath.split('/').slice(0, 3).join('/')
             scriptPath = './' + scriptPath.split('/').slice(3).join('/')
         }
-        let imp = new Import(`import {} from '${scriptPath}'`, './', this.domain, this.supportedModules)
+        let imp = new Import(`import {} from '${scriptPath}'`, './')
         let start = performance.now()
         this.getScript(imp)
             .then(() => {
-                if (this.debug) {
-                    console.log(JSON.stringify(imp.getDependencyMap(), null, 4))                    
-                }
+                utils.log(imp.getDependencyMap())
                 let end = performance.now()
                 let diff = end - start
                 console.log(`It took ${diff} milliseconds to load all scripts`)
@@ -97,10 +95,7 @@ export class Importer {
         if (!_import.dependencies) {
             return Promise.resolve()
         }
-        let proms = _import.dependencies.map((nextImport) => {
-            return this.getScript(nextImport, _import)
-        })
-        return Promise.all(proms)
+        return Promise.all(_import.dependencies.map((nextImport) => this.getScript(nextImport)))
     }
 
     /**
@@ -190,32 +185,8 @@ export class Importer {
             return null
         }
         return imports.map(imp => {
-            return new Import(imp, scriptPath, this.domain, this.supportedModules)
+            return new Import(imp, scriptPath, state.domain, state.supportedModules)
         })
-    }
-
-    addGlobalFunctions() {
-        window.ei = (function () {
-            let imports = {}
-
-            return {
-                import: importer,
-                export: exporter,
-                imports: imports
-            }
-
-            function exporter(path, key, obj) {
-                imports[path] = imports[path] || {}
-                imports[path][key] = obj
-            }
-
-            function importer(path, key) {
-                if (key) {
-                    return imports[path][key]
-                }
-                return imports[path]
-            }
-        })()
     }
 
 }

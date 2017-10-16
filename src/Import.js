@@ -1,5 +1,6 @@
 import consts from './consts.js'
 import utils from './utils.js'
+import state from './sharedState.js'
 
 let addedPaths = {}
 
@@ -10,13 +11,11 @@ export class Import {
      * 
      * @memberof Import
      */
-    constructor(fullImportText, parentScriptPath, domain, supportedModules) {
-        this.domain = domain;
-        this.supportedModules = supportedModules;
+    constructor(fullImportText, parentScriptPath) {
         this.variables = this.getVariables(fullImportText);
         let path = fullImportText.match(/["|'].*["|']/g)[0]
             .replace(/["|']/g, "");
-        this.path = this.buildRelativePath(path, parentScriptPath.replace(this.domain, ''));
+        this.path = this.buildRelativePath(path, parentScriptPath.replace(state.domain, ''));
         this.path = this.getActualPath(this.path)
         /**
          * @type {Array<Import>}
@@ -30,16 +29,16 @@ export class Import {
     }
 
     getActualPath(path) {
-        if (this.supportedModules.indexOf(path) > -1) {
+        if (state.supportedModules.indexOf(path) > -1) {
             return `https://unpkg.com/${path}`
         }
         if (!this.hasExtension(path)) {
             path = path + '.js'
         }
-        if (this.domain) {
+        if (state.domain) {
             let cleanedPath = (path.indexOf('.') === 0) ? path.substr(1) : path
             cleanedPath = (cleanedPath.indexOf('/') === 0) ? cleanedPath : '/' + cleanedPath
-            path = this.domain + cleanedPath
+            path = state.domain + cleanedPath
         }
         return path
     }
@@ -106,7 +105,7 @@ export class Import {
      */
     buildRelativePath(childPath, parentPath) {
         // in this case, we have an external url, don't need to build a path.
-        if (childPath.includes("http") || this.supportedModules.indexOf(childPath) > -1) {
+        if (childPath.includes("http") || state.supportedModules.indexOf(childPath) > -1) {
             return childPath;
         }
 
@@ -192,7 +191,9 @@ export class Import {
             scriptTag.onload = () => {
                 addedPaths[this.path] = true
                 resolve();
-                console.log("loaded", scriptTag.src);
+                if (state.debug) {
+                    console.log("loaded", scriptTag.src);
+                }
             }
             scriptTag.src = url;
         })

@@ -1,11 +1,16 @@
 {
   "name": "es6-import",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "description": "Client side es6 import, export support.",
   "main": "dist/importer.js",
-  "directories": {
-    "example": "example"
-  },
+  "file": [
+    "src",
+    "example",
+    "dist",
+    "example.html",
+    "load.js",
+    "server.js"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"

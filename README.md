@@ -15,6 +15,8 @@ Other uses could be to create a fully in-browser editor with some level of trans
 2. in your main html page add a script tag like the following: 
 `<script src="node_modules/es6-import/importer.js" import="./appStartScript.js"></script>`
 3. For imports to work, you will need to include the extension in the import like: `import jsModule from './src/jsModule.js'`
+4. Beta: To allow usage of npm-modules, add the attribute 'npm-modules' to the script loading tag.  The npm-modules attribute should be an array of strings in valid JSON format, with each value in the string being a needed npm-module.  So, if you were importing a fetch polyfil in your code like `import _fetchPolyfill from 'whatwg-fetch'`, you will need to add `npm-modules='["whatwg-fetch"]'` attribute to the loading script tag. By default there is only already allowed npm module: `vue`.
+5. Debugging: sometimes it is helpful to debug a script to find out what is not working correctly.  To enabel the debug flag, simply add a `debug="true"` attribute to the loading script tag.  Currently the debug flag simply outputs the import dependancy map to help in troubleshooting.
 
 #### Q&A:
 1. Should I use this in production? **No** -- there are many optimizations that happen with server side transpilers that are optimized for serving production code. The goal of this project is not to compete with them, but rather to allow quick development against modern browsers with minimial overhead.
@@ -23,6 +25,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 
 #### Changelog:
 
+* 1.4.[0-2]: Moved to seperated files compiled with webpack and fixed bug with complex dependency trees not being loaded in the correct order.
 * 1.3.[3-4]: Added support for underscores in import variables.
 * 1.3.0: Added support for `.vue` files, but extensions on all import file types are still needed.
 * 1.2.1: Updated the importer to support imports without a semi-colon at the end.
