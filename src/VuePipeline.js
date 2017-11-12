@@ -1,9 +1,23 @@
 export class VuePipeline {
+
+    /**
+     * Creates an instance of VuePipeline.
+     * 
+     * @param {string} filePath 
+     * @param {string} fullImportText 
+     * @memberof VuePipeline
+     */
     constructor(filePath, fullImportText) {
         this.filePath = filePath
         this.fullImportText = fullImportText
     }
 
+    /**
+     * Get converted Text
+     * 
+     * @returns 
+     * @memberof VuePipeline
+     */
     getConvertedText() {
         if (this.filePath.indexOf('.vue') === -1) {
             return this.fullImportText
