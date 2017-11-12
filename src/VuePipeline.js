@@ -20,7 +20,10 @@ export class VuePipeline {
             return converted
         } else {
             converted = converted.replace('<script>', '').replace('</script>', '')
-            return converted.replace('export default {', 'export default {\n template: template,')
+            if (converted.indexOf('export default {')) {
+                return converted.replace('export default {', 'export default {\n template: template,')
+            }
+            return converted.replace('data()', 'template: template,\ndata()')                
         }
     }
 }

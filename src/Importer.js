@@ -5,6 +5,7 @@ import consts from './consts.js'
 import utils from './utils.js'
 import state from './sharedState.js'
 
+
 export class Importer {
 
     constructor() {
@@ -15,7 +16,7 @@ export class Importer {
             throw new Error('No import script found')
         }
         state.domain = null
-        utils.addGlobalFunctions()
+        state.finalScript = utils.getGlobalFunctions()
         let customNpmModules = importScript.getAttribute('npm-modules')
         if (customNpmModules) {
             state.supportedModules = state.supportedModules.concat(JSON.parse(customNpmModules))
@@ -55,7 +56,7 @@ export class Importer {
         if (!state.compileSingle) {
             return Promise.resolve()
         }
-        return utils.attachSrc(state.finalScript, document.head)
+        return utils.executeImport(state.finalScript, document.head)
     }
 
     getStartingPath(){
@@ -203,14 +204,13 @@ export class Importer {
      * @memberof Importer
      */
     getImports(scriptPath, script) {
-        // TODO: here add 'imports as' syntax.
+        // TODO: allow 'imports as' syntax.
         let imports = script.match(consts.IMPORT_REGEX)
         if (!imports) {
             return null
         }
         return imports.map(imp => {
-            return new Import(imp, scriptPath, state.domain, state.supportedModules)
+            return new Import(imp, scriptPath)
         })
     }
-
 }

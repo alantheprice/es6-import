@@ -1,7 +1,6 @@
 import Logger from "./log.js";
 import { Local } from "./local.js";
 
-
 class Main {
 
     constructor() {

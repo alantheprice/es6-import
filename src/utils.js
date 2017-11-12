@@ -2,8 +2,8 @@ import state from './sharedState.js'
 
 export default {
     composePathParts: composePathParts,
-    attachSrc: attachSrc,
-    addGlobalFunctions: addGlobalFunctions,
+    executeImport: excuteImport,
+    getGlobalFunctions: getGlobalFunctions,
     log: log
 }
 
@@ -35,7 +35,10 @@ function composePathParts(combined, next, index, arr) {
  * @param {HTMLElement} parent 
  * @returns {Promise<boolean>}
  */
-function attachSrc(script, parent) {
+function excuteImport(script, parent) {
+    if (!window) {
+        //TODO add node support for building and outputing this as a promise
+    }
     let scriptTag = document.createElement('script')
     let blob = new Blob([script], {
         'type': 'application/javascript'
@@ -59,11 +62,11 @@ function log(msg) {
     console.log(msg)
 }
 
-function addGlobalFunctions() {
-    window.ei = (function () {
+function getGlobalFunctions() {
+    return `(function (global) {
         let imports = {}
 
-        return {
+        global.ei = {
             import: importer,
             export: exporter,
             imports: imports
@@ -84,5 +87,5 @@ function addGlobalFunctions() {
             }
             return imports[path]
         }
-    })()
+    })(window);\n`
 }

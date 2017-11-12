@@ -162,11 +162,12 @@ export class Import {
 
     getIife(content) {
         let global = "const global = window;";
+        // 
         if (content.indexOf("(function (global, factory) {") > -1) {
             global = "const global = {};";
             content = content.replace("(function (global, factory) {", "(function (_global, factory) {")
         }
-        return `(function(){"use strict"\n${global}\n${content}\n})();`;
+        return `(function(){"use strict"\n${global}\n${content}\n})();\n`;
     }
 
     /**
@@ -180,38 +181,6 @@ export class Import {
             addedPaths[this.path] = true
             state.finalScript+= this.getIifeWrappedScript()
             return Promise.resolve()
-        }
-
-        if (document.getElementById(this.path) != null) {
-            return Promise.resolve(true);
-        }
-        let scriptTag = document.createElement("script");
-        scriptTag.setAttribute("id", this.path);
-        let script = this.getIifeWrappedScript()
-        let blob = new Blob([script], {
-            'type': 'application/javascript'
-        });
-        var url = URL.createObjectURL(blob);
-        document.head.appendChild(scriptTag);
-        return new Promise(resolve => {
-            scriptTag.onload = () => {
-                this.resolveOnLoad(resolve, scriptTag)
-            }
-            scriptTag.src = url;
-        })
-    }
-
-    resolveOnLoad(resolve, scriptTag) {
-        addedPaths[this.path] = true
-        if (window.ei.imports[this.path]) {
-            resolve();                    
-        } else {
-            setTimeout(() => {
-                this.resolveOnLoad(resolve, scriptTag)
-            }, 10)
-        }
-        if (state.debug) {
-            console.log("loaded", scriptTag.src);
         }
     }
 

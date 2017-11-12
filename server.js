@@ -22,15 +22,6 @@ const mimeTypes = {
     ".wav": "audio/wav"
 };
 
-function getMarkedPath() {
-    if (__dirname.indexOf("node_modules") > -1) {
-        // in this case we have been installed and need to find marked as a sibling.
-        return (__dirname + "/marked/marked.min.js").replace("/marked-tree", "");
-    } else {
-        return __dirname + "/node_modules/marked/marked.min.js";
-    }
-}
-
 http.createServer(function (request, response) {
     console.log(["Url:", request.url].join(" "));
     console.log(__dirname);
