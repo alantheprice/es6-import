@@ -34,6 +34,7 @@ export class Importer {
      * @memberof Importer
      */
     beginImport(scriptPath) {
+        this.setDefaultDomain()
         if (scriptPath.indexOf('http') > -1) {
             state.domain = scriptPath.split('/').slice(0, 3).join('/')
             scriptPath = './' + scriptPath.split('/').slice(3).join('/')
@@ -50,6 +51,16 @@ export class Importer {
                 let diff = end - start
                 console.log(`It took ${diff} milliseconds to load all scripts`)
             })
+    }
+
+    /**
+     * Sets the default domain.
+     * 
+     * @memberof Importer
+     */
+    setDefaultDomain() {
+        let htmlFileName = window.location.href.split('/').filter((pth) => pth.indexOf('.html') > -1)[0] || '____'
+        state.domain = window.location.href.replace(htmlFileName, '');
     }
 
     addScript() {
