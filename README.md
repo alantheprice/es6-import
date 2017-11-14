@@ -30,6 +30,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 3. Does this support jsx? **No** -- some miracles are out of scope (the same pattern used here for imports could potentially be used for other types of transpilation, but at some point, you probably should just use a traditional transpiler.  But, if you want to submit a pull request, go for it!).
 
 #### Changelog:
+* 1.4.[11-13]: Fixed an issue with the vue pipeline.
 * 1.4.10: Set a default domain to give support for projects that are not served from the root directory of a webserver.
 * 1.4.9: Made vue support slightly more robust with greater syntax compatibility.
 * 1.4.[3-6]: Default to compiling all scripts into a single file.
