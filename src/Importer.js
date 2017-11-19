@@ -187,13 +187,13 @@ export class Importer {
      * @memberof Importer
      */
     getExports(scriptPath, script) {
-        let exports = script.match(new RegExp(consts.EXPORT_REGEX_PATTERN, 'g'))
+        let exports = script.match(consts.EXPORT_REGEX_PATTERN)
         if (!exports) {
             return null
         }
 
         return exports.map(exp => {
-            let [_, varType, name] = exp.trim().split(' ')
+            let [_, varType, name] = exp.trim().split(/\s+/)
             if (varType === 'default') {
                 return this.getExportScript(scriptPath, consts.DEFAULT_NAME, consts.DEFAULT_NAME)
             }

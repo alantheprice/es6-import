@@ -10,6 +10,7 @@ export class Import {
      * @memberof Import
      */
     constructor(fullImportText, parentScriptPath) {
+        fullImportText = fullImportText.trim()
         this.variables = this.getVariables(fullImportText);
         let path = fullImportText.match(/["|'].*["|']/g)[0]
             .replace(/["|']/g, "");
@@ -72,7 +73,7 @@ export class Import {
      */
     getVariables(fullImportText) {
         if (fullImportText.indexOf("{") === -1) {
-            let [_import, defaultName] = fullImportText.split(" ");
+        let [_import, defaultName] = fullImportText.split(/\s+/);
             return [{
                 name: defaultName,
                 valueName: consts.DEFAULT_NAME
@@ -159,7 +160,6 @@ export class Import {
 
     getIife(content) {
         let global = "const global = window;";
-        // 
         if (content.indexOf("(function (global, factory) {") > -1) {
             global = "const global = {};";
             content = content.replace("(function (global, factory) {", "(function (_global, factory) {")
