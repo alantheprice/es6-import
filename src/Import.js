@@ -2,8 +2,6 @@ import consts from './consts.js'
 import utils from './utils.js'
 import state from './sharedState.js'
 
-let addedPaths = {}
-
 export class Import {
     /**
      * Creates an instance of Import.
@@ -25,7 +23,6 @@ export class Import {
          * @type {string}
          */
         this.script = null;
-        this.loaded = addedPaths[this.path] || false
     }
 
     getActualPath(path) {
@@ -176,10 +173,9 @@ export class Import {
      * @param {string} scriptText 
      * @returns {Promise<any>}
      */
-    addScriptToDom() {
+    addScript() {
         if (state.compileSingle) {
-            addedPaths[this.path] = true
-            state.finalScript+= this.getIifeWrappedScript()
+            state.addToFinalScript(this.getIifeWrappedScript(), this.path)
             return Promise.resolve()
         }
     }

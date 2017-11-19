@@ -16,7 +16,7 @@ export class Importer {
             throw new Error('No import script found')
         }
         state.domain = null
-        state.finalScript = utils.getGlobalFunctions()
+        state.addToFinalScript(utils.getGlobalFunctions(), 'globabl')
         let customNpmModules = importScript.getAttribute('npm-modules')
         if (customNpmModules) {
             state.supportedModules = state.supportedModules.concat(JSON.parse(customNpmModules))
@@ -67,7 +67,7 @@ export class Importer {
         if (!state.compileSingle) {
             return Promise.resolve()
         }
-        return utils.executeImport(state.finalScript, document.head)
+        return utils.executeImport(state.getFinalScript, document.head)
     }
 
     getStartingPath(){
