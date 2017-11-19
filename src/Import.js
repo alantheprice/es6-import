@@ -170,7 +170,6 @@ export class Import {
     /**
      * Adds the input script to the DOM.
      * 
-     * @param {string} scriptText 
      * @returns {Promise<any>}
      */
     addScript() {

@@ -67,7 +67,7 @@ export class Importer {
         if (!state.compileSingle) {
             return Promise.resolve()
         }
-        return utils.executeImport(state.getFinalScript, document.head)
+        return utils.executeImport(state.getFinalScript(), document.head)
     }
 
     getStartingPath(){
@@ -117,7 +117,7 @@ export class Importer {
         script = this.processExports(_import, script)
         _import.script = this.processImports(_import, script)
         return this.loadDependencies(_import)
-            .then(() => _import.addScriptToDom())
+            .then(() => _import.addScript())
     }
 
     /**
