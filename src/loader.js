@@ -49,19 +49,27 @@ function shouldLoadFromCache(path) {
 }
 
 function getRemote(path) {
+    let resp = null
+    // temp for testing remove before publish
+    // if (path === 'https://unpkg.com/vue') {
+    //     path = 'https://unpkg.com/vue@2.5.6/dist/vue.min.js'
+    // }
     return fetch(path)
     .then((response) => {
         if (!response.ok) {
             throw new Error(response.statusText)
         }
+        resp = response
         return response.text()
     }).then(text => {
-        cache(path, text)
+        cache(path, text, resp)
         return text
     })
 }
 
-function cache(path, text) {
+function cache(path, text, fullResponse) {
+    window.response = fullResponse
+    // actual url is fullResponse.url, if module, we should be able to pull the version out and save it to be able to do intelligent caching and versioning.
     localStorage.setItem(path, text)
 }
 

@@ -166,7 +166,7 @@ export class Import {
             return this.getIife(`${top};\n${content};\n${bottom}`)
         }
         let ex = this.variables[0];
-        this.script = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
+        content = `${content} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
         let global = "const global = window;";        
         return this.getIife(`${global}\n${content}`);
     }
