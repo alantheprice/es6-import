@@ -1,4 +1,4 @@
-import state from './sharedState.js'
+import config from './config.js'
 
 export default {
     composePathParts: composePathParts,
@@ -55,7 +55,7 @@ function excuteImport(script, parent) {
 }
 
 function log(msg) {
-    if (!state.debug) {
+    if (!config.debug) {
         return
     }
     msg = (typeof msg === 'object') ? JSON.stringify(msg, null, 2) : msg

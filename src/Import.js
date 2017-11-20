@@ -1,6 +1,8 @@
 import consts from './consts.js'
 import utils from './utils.js'
-import state from './sharedState.js'
+import config from './config.js'
+import scriptHolder from './scriptHolder.js'
+const EXPORT_DEFAULT_REGEX = /ei\.export\('.*', '_default', _default\);/
 
 export class Import {
     /**
@@ -14,7 +16,7 @@ export class Import {
         this.variables = this.getVariables(fullImportText);
         let path = fullImportText.match(/["|'].*["|']/g)[0]
             .replace(/["|']/g, "");
-        this.path = this.buildRelativePath(path, parentScriptPath.replace(state.domain, ''));
+        this.path = this.buildRelativePath(path, parentScriptPath.replace(config.domain, ''));
         this.path = this.getActualPath(this.path)
         /**
          * @type {Array<Import>}
@@ -27,16 +29,16 @@ export class Import {
     }
 
     getActualPath(path) {
-        if (state.supportedModules.indexOf(path) > -1) {
+        if (config.supportedModules.indexOf(path) > -1) {
             return `https://unpkg.com/${path}`
         }
         if (!this.hasExtension(path)) {
             path = path + '.js'
         }
-        if (state.domain) {
+        if (config.domain) {
             let cleanedPath = (path.indexOf('.') === 0) ? path.substr(1) : path
             cleanedPath = (cleanedPath.indexOf('/') === 0) ? cleanedPath : '/' + cleanedPath
-            path = state.domain + cleanedPath
+            path = config.domain + cleanedPath
         }
         return path
     }
@@ -73,7 +75,7 @@ export class Import {
      */
     getVariables(fullImportText) {
         if (fullImportText.indexOf("{") === -1) {
-        let [_import, defaultName] = fullImportText.split(/\s+/);
+            let [_import, defaultName] = fullImportText.split(/\s+/);
             return [{
                 name: defaultName,
                 valueName: consts.DEFAULT_NAME
@@ -103,7 +105,7 @@ export class Import {
      */
     buildRelativePath(childPath, parentPath) {
         // in this case, we have an external url, don't need to build a path.
-        if (childPath.includes("http") || state.supportedModules.indexOf(childPath) > -1) {
+        if (childPath.includes("http") || config.supportedModules.indexOf(childPath) > -1) {
             return childPath;
         }
 
@@ -152,19 +154,25 @@ export class Import {
      */
     getIifeWrappedScript() {
         if (this.variables.length && this.script.indexOf("ei.export") === -1) {
-            let ex = this.variables[0];
-            this.script = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
+            return this.getExternalModule(this.script);
         }
         return this.getIife(this.script);
     }
 
-    getIife(content) {
-        let global = "const global = window;";
-        if (content.indexOf("(function (global, factory) {") > -1) {
-            global = "const global = {};";
-            content = content.replace("(function (global, factory) {", "(function (_global, factory) {")
+    getExternalModule(content) {
+        if (this.script.indexOf('typeof exports') > -1 && this.script.indexOf('typeof module') > -1) {
+            let top = 'let exports = {};let module = {};'
+            let bottom = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', module.exports)`
+            return this.getIife(`${top};\n${content};\n${bottom}`)
         }
-        return `(function(){"use strict"\n${global}\n${content}\n})();\n`;
+        let ex = this.variables[0];
+        this.script = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
+        let global = "const global = window;";        
+        return this.getIife(`${global}\n${content}`);
+    }
+
+    getIife(content) {
+        return `(function(){"use strict"\n${content}\n})();\n`;
     }
 
     /**
@@ -173,8 +181,8 @@ export class Import {
      * @returns {Promise<any>}
      */
     addScript() {
-        if (state.compileSingle) {
-            state.addToFinalScript(this.getIifeWrappedScript(), this.path)
+        if (config.compileSingle) {
+            scriptHolder.addToFinalScript(this.getIifeWrappedScript(), this.path)
             return Promise.resolve()
         }
     }

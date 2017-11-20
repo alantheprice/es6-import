@@ -3,10 +3,11 @@ import { VuePipeline } from './VuePipeline.js'
 import loader from './loader.js'
 import consts from './consts.js'
 import utils from './utils.js'
-import state from './sharedState.js'
+import config from './config.js'
+import scriptHolder from './scriptHolder.js'
 
 
-export class Importer {
+ export class Importer {
 
     constructor() {
         let importScript = Array.from(document.getElementsByTagName('script')).find((elem) => {
@@ -15,13 +16,15 @@ export class Importer {
         if (importScript == null) {
             throw new Error('No import script found')
         }
-        state.domain = null
-        state.addToFinalScript(utils.getGlobalFunctions(), 'globabl')
+        config.domain = null
+        scriptHolder.addToFinalScript(utils.getGlobalFunctions(), 'global')
+        // TODO: should move this into a new function just for loading up configuration
         let customNpmModules = importScript.getAttribute('npm-modules')
         if (customNpmModules) {
-            state.supportedModules = state.supportedModules.concat(JSON.parse(customNpmModules))
+            config.supportedModules = config.supportedModules.concat(JSON.parse(customNpmModules))
         }
-        state.debug = importScript.getAttribute('debug') ? true : false
+        config.debug = importScript.getAttribute('debug') ? true : false
+        config.allowCache = importScript.getAttribute('allow-cache') ? true : false
         this.beginImport(importScript.getAttribute('import'))
     }
 
@@ -36,7 +39,7 @@ export class Importer {
     beginImport(scriptPath) {
         this.setDefaultDomain()
         if (scriptPath.indexOf('http') > -1) {
-            state.domain = scriptPath.split('/').slice(0, 3).join('/')
+            config.domain = scriptPath.split('/').slice(0, 3).join('/')
             scriptPath = './' + scriptPath.split('/').slice(3).join('/')
         }
         let imp = new Import(`import {} from '${scriptPath}'`, this.getStartingPath())
@@ -60,19 +63,19 @@ export class Importer {
      */
     setDefaultDomain() {
         let htmlFileName = window.location.href.split('/').filter((pth) => pth.indexOf('.html') > -1)[0] || '____'
-        state.domain = window.location.href.replace(htmlFileName, '');
+        config.domain = window.location.href.replace(htmlFileName, '');
     }
 
     addScript() {
-        if (!state.compileSingle) {
+        if (!config.compileSingle) {
             return Promise.resolve()
         }
-        return utils.executeImport(state.getFinalScript(), document.head)
+        return utils.executeImport(scriptHolder.getFinalScript(), document.head)
     }
 
     getStartingPath(){
         // there is already a domain specified, we don't need to find entrance base path.
-        if (state.domain) {
+        if (config.domain) {
             return './'
         }
         let context = window.location.href.replace(window.location.host, '')
@@ -88,13 +91,12 @@ export class Importer {
      * Recursively loads all scripts.
      *
      * @param {Import} _import
-     * @param {Import} [parent]
      * @returns
      *
      * @memberof Importer
      */
     getScript(_import) {
-        if (_import.loaded) {
+        if (scriptHolder.scriptIsLoaded(_import.path)) {
             return Promise.resolve(true);
         }
         return loader.load(_import.path)
@@ -108,7 +110,6 @@ export class Importer {
      *
      * @param {Import} _import
      * @param {string} script
-     * @param {Import} [parent]
      *
      * @memberof Importer
      */
