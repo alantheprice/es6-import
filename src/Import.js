@@ -30,7 +30,7 @@ export class Import {
 
     getActualPath(path) {
         if (config.supportedModules.indexOf(path) > -1) {
-            return `https://unpkg.com/${path}`
+            return `${consts.MODULE_URL}${path}`
         }
         if (!this.hasExtension(path)) {
             path = path + '.js'

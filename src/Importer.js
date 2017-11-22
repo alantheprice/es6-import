@@ -18,13 +18,7 @@ import scriptHolder from './scriptHolder.js'
         }
         config.domain = null
         scriptHolder.addToFinalScript(utils.getGlobalFunctions(), 'global')
-        // TODO: should move this into a new function just for loading up configuration
-        let customNpmModules = importScript.getAttribute('npm-modules')
-        if (customNpmModules) {
-            config.supportedModules = config.supportedModules.concat(JSON.parse(customNpmModules))
-        }
-        config.debug = importScript.getAttribute('debug') ? true : false
-        config.allowCache = importScript.getAttribute('allow-cache') ? true : false
+        config.setup(importScript)
         this.beginImport(importScript.getAttribute('import'))
     }
 
