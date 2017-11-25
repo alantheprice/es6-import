@@ -8,7 +8,17 @@ let cacheModules = true
 let compileSingle = true
 let moduleConfig = {}
 
+let importScript = Array.from(document.getElementsByTagName('script')).find((elem) => {
+    return elem.getAttribute('import') != null
+})
+if (importScript == null) {
+    throw new Error('No import script found')
+}
+
+setup(importScript)
+
 export default {
+    importScript: importScript,
     domain: domain,
     supportedModules: supportedModules,
     debug: debug,
@@ -25,7 +35,6 @@ export default {
  * @param {HTMLElement} importScript 
  */
 function setup(importScript) {
-    debugger
     let customNpmModules = importScript.getAttribute('npm-modules')
     if (customNpmModules) {
         supportedModules = supportedModules.concat(parseCustomModules(customNpmModules))
@@ -46,7 +55,7 @@ function loadModConfig(importScript) {
     return supportedModules.reduce((agg, mod) => {
         let config = importScript.getAttribute(mod)
         if (config) {
-            agg[mod] = parseConfig(config)
+            agg[mod] = parseConfig(config, mod)
         }
         return agg
     }, {})
@@ -56,9 +65,10 @@ function loadModConfig(importScript) {
  * 
  * 
  * @param {any} config 
- * @returns 
+ * @param {string} moduleName
+ * @returns {{version: string, overideUrl: string, moduleName: string}}
  */
-function parseConfig(config) {
+function parseConfig(config, moduleName) {
     if (config.indexOf('{') > -1) {
         return JSON.parse(config)
     }
@@ -66,7 +76,7 @@ function parseConfig(config) {
         let kv = keyValue.split('=')
         agg[kv[0]] = kv[1]
         return agg
-    }, {})
+    }, {moduleName: moduleName})
 }
 /**
  * 

@@ -37,10 +37,10 @@ function load(path) {
 
 function getModuleConfig(path) {
    if (!isModule(path)) {
-      return 0
+      return {}
    }
    let moduleName = path.replace(consts.MODULE_URL, '')
-   let moduleConfig = config.moduleConfig[moduleName] || {version: 0}
+   let moduleConfig = config.moduleConfig[moduleName] || {version: ''}
    return moduleConfig
 }
 
@@ -63,16 +63,18 @@ function shouldLoadFromCache(path) {
     }
     return config.cacheAll
 }
+
 /**
- * 
- * 
- * @param {any} path 
- * @param {{version: string, overideUrl: string}} moduleConfig 
+ * Get Remote
+ * s
+ * @param {string} path 
+ * @param {{version: string, overideUrl: string, moduleName: string}} moduleConfig 
  * @returns 
  */
 function getRemote(path, moduleConfig) {
     let resp = null
-    return fetch(path)
+    let pth = getRemotePath(path, moduleConfig)
+    return fetch(pth)
     .then((response) => {
         if (!response.ok) {
             throw new Error(response.statusText)
@@ -83,6 +85,24 @@ function getRemote(path, moduleConfig) {
         cache(path, text, resp, moduleConfig)
         return text
     })
+}
+
+/**
+ * 
+ * 
+ * @param {string} path 
+ * @param {{version: string, overideUrl: string, moduleName: string}} moduleConfig 
+ * @returns {string}
+ */
+function getRemotePath(path, moduleConfig) {
+    if (moduleConfig.overideUrl) {
+        return moduleConfig.overideUrl
+    }
+    if (moduleConfig.version && moduleConfig.version !== '') {
+        let versionName = [moduleConfig.moduleName, moduleConfig.version].join('@')
+        return `${consts.MODULE_URL}${versionName}`
+    }
+    return path
 }
 
 /**
@@ -113,16 +133,15 @@ function loadFromCache(path, moduleConfig) {
     if (!found || !found.text || !found.url) {
         return null
     }
-    debugger
     if (moduleConfig.version !== 0 && found.version !== moduleConfig.version) {
         return null
     }
     if (moduleConfig.overideUrl !== null && found.overideUrl !== moduleConfig.overideUrl) {
         return null
     }
-    // if (config.debug) {
+    if (config.debug) {
         console.log(`Loaded ${path} from cache`)
-    // }
+    }
     return atob(found.text)
 }
 

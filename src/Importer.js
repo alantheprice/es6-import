@@ -5,24 +5,19 @@ import consts from './consts.js'
 import utils from './utils.js'
 import config from './config.js'
 import scriptHolder from './scriptHolder.js'
+import { debug } from 'util';
 
 
  export class Importer {
 
     constructor() {
-        let importScript = Array.from(document.getElementsByTagName('script')).find((elem) => {
-            return elem.getAttribute('import') != null
-        })
-        if (importScript == null) {
-            throw new Error('No import script found')
-        }
+        config.importScript
         config.domain = null
         scriptHolder.addToFinalScript(utils.getGlobalFunctions(), 'global')
-        config.setup(importScript)
-        this.beginImport(importScript.getAttribute('import'))
+        this.beginImport(config.importScript.getAttribute('import'))
     }
 
-    /**
+    /**s
      * Begin file imports
      *
      * @param {string} scriptPath

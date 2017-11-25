@@ -28,6 +28,13 @@ export class Import {
         this.script = null;
     }
 
+    /**
+     * 
+     * 
+     * @param {string} path 
+     * @returns 
+     * @memberof Import
+     */
     getActualPath(path) {
         if (config.supportedModules.indexOf(path) > -1) {
             return `${consts.MODULE_URL}${path}`
@@ -37,7 +44,7 @@ export class Import {
         }
         if (config.domain) {
             let cleanedPath = (path.indexOf('.') === 0) ? path.substr(1) : path
-            cleanedPath = (cleanedPath.indexOf('/') === 0) ? cleanedPath : '/' + cleanedPath
+            cleanedPath = (cleanedPath.indexOf('/') === 0) ? cleanedPath.slice(1) : cleanedPath
             path = config.domain + cleanedPath
         }
         return path
