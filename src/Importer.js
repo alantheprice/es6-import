@@ -5,7 +5,6 @@ import consts from './consts.js'
 import utils from './utils.js'
 import config from './config.js'
 import scriptHolder from './scriptHolder.js'
-import { debug } from 'util';
 
 
  export class Importer {
