@@ -52,6 +52,9 @@ import scriptHolder from './scriptHolder.js'
     setDefaultDomain() {
         let htmlFileName = window.location.href.split('/').filter((pth) => pth.indexOf('.html') > -1)[0] || '____'
         config.domain = window.location.href.replace(htmlFileName, '');
+        if (config.domain.slice(-1) === '/') {
+            config.domain = config.domain.slice(0, -1)
+        }
     }
 
     addScript() {

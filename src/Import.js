@@ -45,7 +45,7 @@ export class Import {
         if (config.domain) {
             let cleanedPath = (path.indexOf('.') === 0) ? path.substr(1) : path
             cleanedPath = (cleanedPath.indexOf('/') === 0) ? cleanedPath.slice(1) : cleanedPath
-            path = config.domain + cleanedPath
+            path = [config.domain, cleanedPath].join('/')
         }
         return path
     }
