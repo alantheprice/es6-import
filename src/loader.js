@@ -3,8 +3,11 @@ import config from './config.js'
 import store from './store.js'
 import consts from './consts.js'
 
+let refreshingCache = []
+
 export default {
-    load: loadFile
+    load: loadFile,
+    awaitCacheRefresh: awaitCacheRefresh
 }
 
 function loadFile(path) {
@@ -15,8 +18,8 @@ function loadFile(path) {
     promises[path] = load(path)
     return promises[path]
 }
+
 /**
- * 
  * 
  * @param {string} path 
  * @returns 
@@ -29,10 +32,14 @@ function load(path) {
     let fromCache = loadFromCache(path, moduleConfig)
     if (fromCache) {
         // refresh cache, but load instantly from cache since it is possible.
-        getRemote(path, moduleConfig)
+        refreshingCache.push({
+            promise: getRemote(path, moduleConfig), 
+            config: moduleConfig
+        })
         return Promise.resolve(fromCache)
     }
     return getRemote(path, moduleConfig)
+    .catch(() => loadFromCache(path, moduleConfig))
 }
 
 function getModuleConfig(path) {
@@ -49,8 +56,6 @@ function isModule(path) {
 }
 
 /**
- * 
- * 
  * @param {string} path 
  * @returns 
  */
@@ -74,16 +79,21 @@ function shouldLoadFromCache(path) {
 function getRemote(path, moduleConfig) {
     let resp = null
     let pth = getRemotePath(path, moduleConfig)
-    return fetch(pth)
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(response.statusText)
-        }
-        resp = response
-        return response.text()
-    }).then(text => {
-        cache(path, text, resp, moduleConfig)
-        return text
+    return new Promise((resolve, reject) => {
+        let timeoutId = setTimeout(reject, 400)
+        fetch(pth)
+        .then((response) => {
+            clearTimeout(timeoutId)
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            resp = response
+            return response.text()
+        }).then(text => {
+            cache(path, text, resp, moduleConfig)
+            resolve(text)
+        }).catch(reject)
+
     })
 }
 
@@ -143,5 +153,13 @@ function loadFromCache(path, moduleConfig) {
         console.log(`Loaded ${path} from cache`)
     }
     return atob(found.text)
+}
+
+function awaitCacheRefresh() {
+    let promise = refreshingCache.map((item) => item.promise)
+    return Promise.all(promise)
+    .then((items) => {
+        return true
+    })
 }
 

@@ -6,7 +6,6 @@ import utils from './utils.js'
 import config from './config.js'
 import scriptHolder from './scriptHolder.js'
 
-
  export class Importer {
 
     constructor() {
