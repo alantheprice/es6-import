@@ -60,13 +60,7 @@ function isModule(path) {
  * @returns 
  */
 function shouldLoadFromCache(path) {
-    if (!config.cacheModules && !config.cacheAll) {
-        return false
-    }
-    if (config.cacheModules && path.indexOf(consts.MODULE_URL) === 0) {
-        return true
-    }
-    return config.cacheAll
+    return (config.cacheModules && isModule(path))
 }
 
 /**
@@ -92,7 +86,10 @@ function getRemote(path, moduleConfig) {
         }).then(text => {
             cache(path, text, resp, moduleConfig)
             resolve(text)
-        }).catch(reject)
+        }).catch((err) => {
+            clearTimeout(timeoutId)
+            reject()
+        })
 
     })
 }

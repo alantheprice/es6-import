@@ -1,6 +1,7 @@
 import consts from './consts.js'
 let finalScript = ''
 let addedScripts = {}
+let scripts = []
 
 export default {
     addToFinalScript: addToFinalScript,
@@ -18,6 +19,7 @@ function addToFinalScript(partial, path) {
     if (addedScripts[path]) {
         return
     }
+    scripts.push({path: path, script: partial})
     finalScript += partial
     addedScripts[path] = true
 }

@@ -4,7 +4,10 @@ import loader from './loader.js'
 import consts from './consts.js'
 import utils from './utils.js'
 import config from './config.js'
+import store from './store.js'
 import scriptHolder from './scriptHolder.js'
+
+const BUILT_SCRIPT_KEY = 'ltl'
 
  export class Importer {
 
@@ -31,6 +34,9 @@ import scriptHolder from './scriptHolder.js'
         }
         let imp = new Import(`import {} from '${scriptPath}'`, this.getStartingPath())
         let start = performance.now()
+        if (config.cacheAll) {
+            this.loadFinalFromCache()
+        }
         this.getScript(imp)
             .then(() => {
                 return this.addScript()
@@ -56,11 +62,35 @@ import scriptHolder from './scriptHolder.js'
         }
     }
 
+    loadFinalFromCache() {
+        let lastCompiled = store.getItem(BUILT_SCRIPT_KEY)
+        if (!lastCompiled) {
+            return
+        }
+        this.loadedFromCache = atob(lastCompiled.text)
+        utils.log('loading from cache')
+        utils.executeImport(this.loadedFromCache, document.head)
+    }
+
     addScript() {
-        if (!config.compileSingle) {
+        let finalScript = scriptHolder.getFinalScript()
+        if (this.loadedFromCache === finalScript) {
+            utils.log('Nothing changed')
             return Promise.resolve()
         }
-        return utils.executeImport(scriptHolder.getFinalScript(), document.head)
+        store.setItem(BUILT_SCRIPT_KEY, {text: btoa(finalScript)})
+
+        if (this.loadedFromCache) {
+            utils.log('There are changes, notify user')
+            store.setItem(BUILT_SCRIPT_KEY, {text: btoa(finalScript)})
+            if ( window.confirm("There is a new version of this application available. Do you want to refresh and use updated version?")) {
+                window.location.reload()
+                return
+            }
+            utils.log('user says no')
+        }
+        utils.log('Loading script')
+        return utils.executeImport(finalScript, document.head)
     }
 
     getStartingPath(){
