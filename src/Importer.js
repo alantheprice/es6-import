@@ -68,26 +68,23 @@ const BUILT_SCRIPT_KEY = 'ltl'
             return
         }
         this.loadedFromCache = atob(lastCompiled.text)
+        this.b64Cache = lastCompiled.text
         utils.log('loading from cache')
         utils.executeImport(this.loadedFromCache, document.head)
     }
 
     addScript() {
         let finalScript = scriptHolder.getFinalScript()
-        if (this.loadedFromCache === finalScript) {
+        let finalB64 = btoa(finalScript)
+        if (this.b64Cache === finalB64) {
             utils.log('Nothing changed')
             return Promise.resolve()
         }
-        store.setItem(BUILT_SCRIPT_KEY, {text: btoa(finalScript)})
+        store.setItem(BUILT_SCRIPT_KEY, {text: finalB64})
 
-        if (this.loadedFromCache) {
-            utils.log('There are changes, notify user')
-            store.setItem(BUILT_SCRIPT_KEY, {text: btoa(finalScript)})
-            if ( window.confirm("There is a new version of this application available. Do you want to refresh and use updated version?")) {
-                window.location.reload()
-                return
-            }
-            utils.log('user says no')
+        if (this.b64Cache) {
+            utils.log('There are changes, next reload gets them')
+            return
         }
         utils.log('Loading script')
         return utils.executeImport(finalScript, document.head)

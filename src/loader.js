@@ -26,19 +26,21 @@ function loadFile(path) {
  */
 function load(path) {
     let moduleConfig = getModuleConfig(path)
+    let maxTimeout = loadFromCache(path, moduleConfig) ? 200 : 99999
     if (!shouldLoadFromCache(path)) {
-        return getRemote(path, moduleConfig)
+        return getRemote(path, moduleConfig, maxTimeout)
+        .catch(() => loadFromCache(path, moduleConfig))
     }
     let fromCache = loadFromCache(path, moduleConfig)
     if (fromCache) {
         // refresh cache, but load instantly from cache since it is possible.
         refreshingCache.push({
-            promise: getRemote(path, moduleConfig), 
+            promise: getRemote(path, moduleConfig, 99999), 
             config: moduleConfig
         })
         return Promise.resolve(fromCache)
     }
-    return getRemote(path, moduleConfig)
+    return getRemote(path, moduleConfig, maxTimeout)
     .catch(() => loadFromCache(path, moduleConfig))
 }
 
@@ -68,13 +70,14 @@ function shouldLoadFromCache(path) {
  * s
  * @param {string} path 
  * @param {{version: string, overideUrl: string, moduleName: string}} moduleConfig 
+ * @param {number} maxTimeout
  * @returns 
  */
-function getRemote(path, moduleConfig) {
+function getRemote(path, moduleConfig, maxTimeout) {
     let resp = null
     let pth = getRemotePath(path, moduleConfig)
     return new Promise((resolve, reject) => {
-        let timeoutId = setTimeout(reject, 400)
+        let timeoutId = setTimeout(reject, maxTimeout)
         fetch(pth)
         .then((response) => {
             clearTimeout(timeoutId)
@@ -140,7 +143,7 @@ function loadFromCache(path, moduleConfig) {
     if (!found || !found.text || !found.url) {
         return null
     }
-    if (moduleConfig.version !== 0 && found.version !== moduleConfig.version) {
+    if (moduleConfig.version !== '' && found.version !== moduleConfig.version) {
         return null
     }
     if (moduleConfig.overideUrl !== null && found.overideUrl !== moduleConfig.overideUrl) {

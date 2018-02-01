@@ -30,7 +30,13 @@ function addToFinalScript(partial, path) {
  * @returns {string}
  */
 function getFinalScript() {
-    return finalScript;
+    return finalScript
+        .split(/\r\n|\r|\n/g)
+        .map((line) => line.trim())
+        .filter((line) => {
+            return line.length > 0 && line.indexOf('//') !== 0
+        })
+        .join('\n')
 }
 
 function scriptIsLoaded(scriptPath) {
