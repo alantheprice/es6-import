@@ -83,7 +83,10 @@ const BUILT_SCRIPT_KEY = 'ltl'
         store.setItem(BUILT_SCRIPT_KEY, {text: finalB64})
 
         if (this.b64Cache) {
+            // can't actually get this done until we fix ordering.
             utils.log('There are changes, next reload gets them')
+            let key = 'diff' + new Date().getMilliseconds()
+            store.setItem(key, {old: this.loadedFromCache, new: finalScript})
             return
         }
         utils.log('Loading script')

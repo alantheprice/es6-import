@@ -32,7 +32,7 @@ function addToFinalScript(partial, path) {
 function getFinalScript() {
     return finalScript
         .split(/\r\n|\r|\n/g)
-        .map((line) => line.trim())
+        // .map((line) => line.trim())
         .filter((line) => {
             return line.length > 0 && line.indexOf('//') !== 0
         })

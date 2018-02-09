@@ -30,6 +30,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 3. Does this support jsx? **No** -- some miracles are out of scope (the same pattern used here for imports could potentially be used for other types of transpilation, but at some point, you probably should just use a traditional transpiler.  But, if you want to submit a pull request, go for it!).
 
 #### Changelog:
+* 1.6.3: removed all minification to make it easier to read code.
 * 1.6.[1-2]: Removed user notification, and optimized storage
 * 1.6.0: Updated caching pattern to notify on new versions for fully cached.
 * 1.5.0: Added Caching
