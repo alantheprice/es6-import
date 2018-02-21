@@ -1,6 +1,6 @@
 {
   "name": "es6-import",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "Client side es6 import, export support.",
   "main": "dist/importer.js",
   "files": [
@@ -36,5 +36,10 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
     "webpack": "^3.7.1"
+  },
+  "dependencies": {
+    "fom": "0.0.1",
+    "hyperdom": "^0.11.0",
+    "hyperhtml": "^2.5.10"
   }
 }

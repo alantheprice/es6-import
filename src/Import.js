@@ -169,8 +169,10 @@ export class Import {
     getExternalModule(content) {
         if (this.script.indexOf('typeof exports') > -1 && this.script.indexOf('typeof module') > -1) {
             let top = 'let exports = {};let module = {};'
-            let bottom = `${this.script} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', module.exports)`
-            return this.getIife(`${top};\n${content};\n${bottom}`)
+            let bottom = `\nei.export('${this.path}', '${consts.DEFAULT_NAME}', module.exports);`
+            let lineBreak = '\n'
+            let forwardModules = `\nObject.keys(module.exports).map((key) => ei.export('${this.path}', key, module.exports[key]))`
+            return this.getIife(`${top};\n${content};\n${bottom}\n${forwardModules}`)
         }
         let ex = this.variables[0];
         content = `${content} \nei.export('${this.path}', '${consts.DEFAULT_NAME}', global.${ex.name})`
