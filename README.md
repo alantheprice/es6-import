@@ -17,7 +17,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 **Option 2:**
 * Install: `npm install es6-import`
 * in your main html page add a script tag like the following: 
-`<script src="node_modules/es6-import/importer.js" import="./appStartScript.js"></script>`
+`<script src="./node_modules/es6-import/dist/importer.js" import="./appStartScript.js"></script>`
 
 **Things to keep in mind:**
 * For imports to work, you will need to include the extension in the import like: `import jsModule from './src/jsModule.js'`
