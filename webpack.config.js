@@ -8,9 +8,6 @@ module.exports = {
         filename: "importer.js"
     },
     module: {
-        loaders: [
-            { test: /\.css$/, loader: "style!css" }
-        ],
         rules: [
             {
               test: /\.js$/,
@@ -24,7 +21,7 @@ module.exports = {
             }
           ]
     },
-    plugins: [
-        new webpack.optimize.UglifyJsPlugin()
-    ]
+    optimization: {
+        minimize: true
+    }
 };

@@ -67,7 +67,7 @@ const BUILT_SCRIPT_KEY = 'ltl'
         if (!lastCompiled) {
             return
         }
-        this.loadedFromCache = atob(lastCompiled.text)
+        this.loadedFromCache = utils.unmangle(lastCompiled)
         this.b64Cache = lastCompiled.text
         utils.log('loading from cache')
         utils.executeImport(this.loadedFromCache, document.head)
@@ -75,12 +75,12 @@ const BUILT_SCRIPT_KEY = 'ltl'
 
     addScript() {
         let finalScript = scriptHolder.getFinalScript()
-        let finalB64 = btoa(finalScript)
-        if (this.b64Cache === finalB64) {
+        let finalB64 = utils.mangle(finalScript)
+        if (this.b64Cache === finalB64.text) {
             utils.log('Nothing changed')
             return Promise.resolve()
         }
-        store.setItem(BUILT_SCRIPT_KEY, {text: finalB64})
+        store.setItem(BUILT_SCRIPT_KEY, finalB64)
 
         if (this.b64Cache) {
             // can't actually get this done until we fix ordering.

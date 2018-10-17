@@ -30,6 +30,7 @@ Other uses could be to create a fully in-browser editor with some level of trans
 3. Does this support jsx? **No** -- some miracles are out of scope (the same pattern used here for imports could potentially be used for other types of transpilation, but at some point, you probably should just use a traditional transpiler.  Nevertheless, if you want to submit a pull request, go for it!).
 
 #### Changelog:
+* 1.6.5: Fix issue with scripts that can't be converted to base64
 * 1.6.4: Forward all exports correctly as modules from UMD format.
 * 1.6.3: removed all minification to make it easier to read code.
 * 1.6.[1-2]: Removed user notification, and optimized storage

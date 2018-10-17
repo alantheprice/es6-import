@@ -4,7 +4,9 @@ export default {
     composePathParts: composePathParts,
     executeImport: excuteImport,
     getGlobalFunctions: getGlobalFunctions,
-    log: log
+    log: log,
+    mangle: mangle,
+    unmangle: unmangle
 }
 
 /**
@@ -88,4 +90,38 @@ function getGlobalFunctions() {
             return imports[path]
         }
     })(window);\n`
+}
+
+/**
+ * Mangle
+ *
+ * @param {string} inputString
+ * @returns {{ text: string, isBase64: boolean }}
+ */
+function mangle(inputString) {
+    try{
+        return {
+            text: btoa(inputString),
+            isBase64: true
+        }
+    }
+    catch(e) {
+        return {
+            text: inputString,
+            isBase64: false
+        }
+    }
+}
+
+/**
+ * Unmangle text
+ *
+ * @param {{ text: string, isBase64: boolean }} mangledText
+ * @returns { string }
+ */
+function unmangle(mangledText) {
+    if (!mangledText.isBase64) {
+        return mangledText.text
+    }
+    return atob(mangledText.text)    
 }

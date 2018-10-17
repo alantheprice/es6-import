@@ -2,6 +2,7 @@ let promises = {}
 import config from './config.js'
 import store from './store.js'
 import consts from './consts.js'
+import utils from './utils.js'
 
 let refreshingCache = []
 
@@ -130,7 +131,17 @@ function cache(path, text, fullResponse, moduleConfig) {
     if (loadedVersion) {
         version = loadedVersion[0].split('@')[1]
     }
-    store.setItem(path, {text: btoa(text), url: fullResponse.url, version: version, overideUrl: moduleConfig.overideUrl})
+    let mangled = utils.mangle(text)
+    if (!mangled.isBase64) {
+        return
+    }
+    store.setItem(path, {
+        text: mangled.text,
+        isBase64: mangled.isBase64,
+        url: fullResponse.url, 
+        version: version, 
+        overideUrl: moduleConfig.overideUrl
+    })
 }
 /**
  * 
@@ -152,7 +163,7 @@ function loadFromCache(path, moduleConfig) {
     if (config.debug) {
         console.log(`Loaded ${path} from cache`)
     }
-    return atob(found.text)
+    return utils.unmangle(found)    
 }
 
 function awaitCacheRefresh() {
